@@ -131,7 +131,15 @@ function renderAuth() {
   const bar = $("#userbar");
   if (logged) {
     bar.innerHTML = `<span>${esc(session.user.email)}</span>
+      <button class="ghost" id="pwBtn">設定密碼</button>
       <button class="ghost" id="logoutBtn">登出</button>`;
+    $("#pwBtn").onclick = async () => {
+      const pw = prompt("設定登入密碼(至少 6 碼),之後即可用 Email + 密碼登入:");
+      if (!pw) return;
+      if (pw.length < 6) return toast("密碼至少 6 碼");
+      const { error } = await sb.auth.updateUser({ password: pw });
+      toast(error ? "設定失敗:" + error.message : "密碼已設定!手機可用 Email+密碼登入");
+    };
     $("#logoutBtn").onclick = async () => {
       await sb.auth.signOut();
       terms = [];
