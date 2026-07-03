@@ -78,7 +78,11 @@ button.danger { background: transparent; border: 1px solid #7f1d1d; color: #fca5
   border-radius: var(--radius); padding: 12px; margin-bottom: 16px;
 }
 #addForm .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-#addForm button { width: 100%; }
+#addForm > button { width: 100%; }
+.formActions { display: flex; gap: 8px; }
+.formActions .primary { flex: 1; }
+.formActions .ghost { flex: 0 0 auto; }
+#dupHint { color: var(--warn); }
 
 /* 控制列 */
 #controls { display: grid; gap: 8px; margin-bottom: 12px; }

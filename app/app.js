@@ -220,11 +220,26 @@ function subscribeRealtime() {
 }
 
 // ── 新增表單 ──────────────────────────────────────────────
+// 以中國用語做重複偵測(去空白、完全相符)
+function findDup(cn) {
+  const k = (cn || "").trim();
+  return k ? terms.find((t) => (t.cn || "").trim() === k) : null;
+}
+function hideDupHint() {
+  const h = $("#dupHint");
+  h.hidden = true;
+  h.textContent = "";
+}
+
 $("#addForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const f = e.target;
   const cn = f.cn.value.trim();
   if (!cn) return toast("「中國用語」必填");
+  const dup = findDup(cn);
+  if (dup) {
+    return toast(`「${cn}」已存在(${STATUS_LABEL[dup.status] || dup.status}${dup.tw ? ":" + dup.tw : ""}),未重複新增`);
+  }
   addTerm({
     cn,
     tw: f.tw.value.trim() || null,
@@ -234,8 +249,28 @@ $("#addForm").addEventListener("submit", (e) => {
     status: "pending",
   });
   f.reset();
+  hideDupHint();
   f.cn.focus();
 });
+
+// 邊打邊提示是否已存在
+$("#addForm").cn.addEventListener("input", () => {
+  const dup = findDup($("#addForm").cn.value);
+  const h = $("#dupHint");
+  if (dup) {
+    h.hidden = false;
+    h.textContent = `⚠ 已存在:${dup.cn} ↔ ${dup.tw || "(臺灣對應待補)"}(${STATUS_LABEL[dup.status] || dup.status})`;
+  } else {
+    hideDupHint();
+  }
+});
+
+// 清除表單
+$("#clearBtn").onclick = () => {
+  $("#addForm").reset();
+  hideDupHint();
+  $("#addForm").cn.focus();
+};
 
 // ── AI 建議(呼叫 lookup Edge Function → 填入臺灣對應,存成待查證)──
 $("#aiBtn").onclick = async () => {

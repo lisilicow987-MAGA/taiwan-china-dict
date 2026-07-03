@@ -45,7 +45,11 @@
         <input name="source" placeholder="在哪聽到的" />
       </div>
       <input name="note" placeholder="備註(可留空)" />
-      <button type="submit" class="primary">＋ 新增（預設「待查證」）</button>
+      <div id="dupHint" class="hint" hidden></div>
+      <div class="formActions">
+        <button type="submit" class="primary">＋ 新增（待查證）</button>
+        <button type="button" id="clearBtn" class="ghost">清除</button>
+      </div>
     </form>
     <datalist id="catList"></datalist>
 
