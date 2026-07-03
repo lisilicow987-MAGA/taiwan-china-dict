@@ -220,15 +220,48 @@ function subscribeRealtime() {
 }
 
 // ── 新增表單 ──────────────────────────────────────────────
-// 以中國用語做重複偵測(去空白、完全相符)
+// ── 重複偵測(含簡繁正規化,解決 立马/立馬、视频/視頻 這類漏抓)──
+// 用 opencc-js 把兩邊都折成簡體再比;載入前先以「去空白」為後備,載入後重算提示。
+let _foldFn = (s) => (s || "").trim();
+const _foldCache = new Map();
+function fold(s) {
+  s = (s || "").trim();
+  if (_foldCache.has(s)) return _foldCache.get(s);
+  const v = _foldFn(s);
+  _foldCache.set(s, v);
+  return v;
+}
+import("https://esm.sh/opencc-js@1.0.5")
+  .then((mod) => {
+    const Converter = mod.Converter || (mod.default && mod.default.Converter);
+    if (!Converter) return;
+    const conv = Converter({ from: "t", to: "cn" }); // 繁→簡
+    _foldFn = (s) => conv((s || "").trim());
+    _foldCache.clear(); // 清掉後備期間算過的舊值
+    updateDupHint();
+  })
+  .catch(() => {});
+
 function findDup(cn) {
-  const k = (cn || "").trim();
-  return k ? terms.find((t) => (t.cn || "").trim() === k) : null;
+  const k = fold(cn);
+  return k ? terms.find((t) => fold(t.cn) === k) : null;
 }
 function hideDupHint() {
   const h = $("#dupHint");
   h.hidden = true;
   h.textContent = "";
+}
+function updateDupHint() {
+  const el = $("#addForm") && $("#addForm").cn;
+  if (!el) return;
+  const dup = findDup(el.value);
+  if (dup) {
+    const h = $("#dupHint");
+    h.hidden = false;
+    h.textContent = `⚠ 已存在:${dup.cn} ↔ ${dup.tw || "(臺灣對應待補)"}(${STATUS_LABEL[dup.status] || dup.status})`;
+  } else {
+    hideDupHint();
+  }
 }
 
 $("#addForm").addEventListener("submit", (e) => {
@@ -238,7 +271,10 @@ $("#addForm").addEventListener("submit", (e) => {
   if (!cn) return toast("「中國用語」必填");
   const dup = findDup(cn);
   if (dup) {
-    return toast(`「${cn}」已存在(${STATUS_LABEL[dup.status] || dup.status}${dup.tw ? ":" + dup.tw : ""}),未重複新增`);
+    const ok = confirm(
+      `「${cn}」可能已存在:\n${dup.cn} ↔ ${dup.tw || "(臺灣對應待補)"}(${STATUS_LABEL[dup.status] || dup.status})\n\n仍要新增嗎?`
+    );
+    if (!ok) return;
   }
   addTerm({
     cn,
@@ -253,17 +289,7 @@ $("#addForm").addEventListener("submit", (e) => {
   f.cn.focus();
 });
 
-// 邊打邊提示是否已存在
-$("#addForm").cn.addEventListener("input", () => {
-  const dup = findDup($("#addForm").cn.value);
-  const h = $("#dupHint");
-  if (dup) {
-    h.hidden = false;
-    h.textContent = `⚠ 已存在:${dup.cn} ↔ ${dup.tw || "(臺灣對應待補)"}(${STATUS_LABEL[dup.status] || dup.status})`;
-  } else {
-    hideDupHint();
-  }
-});
+$("#addForm").cn.addEventListener("input", updateDupHint);
 
 // 清除表單
 $("#clearBtn").onclick = () => {
