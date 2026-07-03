@@ -9,8 +9,9 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// 免費層可用模型;若某天此名稱失效,可換成 gemini-2.5-flash 等其他免費模型
-const MODEL = "gemini-2.0-flash";
+// 免費層模型;可用密鑰 GEMINI_MODEL 覆寫(免改程式),預設 gemini-2.5-flash。
+// 免費額度是「每個模型分開算」,撞到 429 時可換成 gemini-2.5-flash-lite / gemini-1.5-flash 等。
+const MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
