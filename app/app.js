@@ -359,9 +359,24 @@ function openEdit(t) {
   };
 }
 
-// ── 註冊 Service Worker(PWA 離線外殼)─────────────────────
+// ── 註冊 Service Worker + 自動更新 ────────────────────────
+// 部署新版後,前端會自動偵測到新的 SW 並在背景切換,切換完成即自動重載,
+// 使用者不必手動重整。
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then((reg) => {
+    reg.update();
+    setInterval(() => reg.update(), 60 * 1000);          // 每分鐘檢查新版
+    document.addEventListener("visibilitychange", () => {  // 回到 App 時也檢查
+      if (document.visibilityState === "visible") reg.update();
+    });
+  }).catch(() => {});
+
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing) return;                               // 避免重載迴圈
+    refreshing = true;
+    location.reload();
+  });
 }
 
 init();

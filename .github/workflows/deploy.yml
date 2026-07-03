@@ -33,6 +33,10 @@ jobs:
           };
           EOF
 
+      # 每次部署以 commit SHA 當 SW 版號,讓客戶端自動偵測到新版並重載
+      - name: Stamp service worker version
+        run: sed -i "s/__CACHE_VERSION__/${GITHUB_SHA}/" app/sw.js
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
