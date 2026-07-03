@@ -1,7 +1,7 @@
 {
-  "name": "台灣用語辭典",
-  "short_name": "台灣用語",
-  "description": "台灣 vs 中國 習慣用語對照辭典 — 隨手捕捉、查證、保存台灣慣用語",
+  "name": "臺灣用語辭典",
+  "short_name": "臺灣用語",
+  "description": "臺灣 vs 中國 習慣用語對照辭典 — 隨手捕捉、查證、保存臺灣慣用語",
   "lang": "zh-Hant-TW",
   "start_url": "./index.html",
   "scope": "./",

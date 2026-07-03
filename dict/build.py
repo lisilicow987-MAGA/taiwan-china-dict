@@ -24,7 +24,7 @@ def build_csv(data):
     entries = data["entries"]
     with CSV_OUT.open("w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["台灣慣用語", "中國慣用語", "分類", "備註"])
+        writer.writerow(["臺灣慣用語", "中國慣用語", "分類", "備註"])
         for e in entries:
             writer.writerow([e["tw"], e["cn"], e["category"], e.get("note", "")])
     return len(entries)
@@ -56,7 +56,7 @@ def build_md(data):
 
     for cat, items in groups.items():
         lines.append(f"## {cat}\n")
-        lines.append("| 台灣慣用語 | 中國慣用語 | 備註 |")
+        lines.append("| 臺灣慣用語 | 中國慣用語 | 備註 |")
         lines.append("|------------|------------|------|")
         for e in items:
             note = e.get("note", "").replace("|", "\\|")

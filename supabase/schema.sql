@@ -1,4 +1,4 @@
--- 台灣 vs 中國 用語對照辭典 — Supabase 資料表結構
+-- 臺灣 vs 中國 用語對照辭典 — Supabase 資料表結構
 -- 用法:在 Supabase 專案 → SQL Editor → 貼上整段 → Run(只需執行一次)
 
 create extension if not exists "pgcrypto";
@@ -6,7 +6,7 @@ create extension if not exists "pgcrypto";
 -- ── 主資料表 ───────────────────────────────────────────────
 create table if not exists public.terms (
   id          uuid primary key default gen_random_uuid(),
-  tw          text,                       -- 台灣用語(status=pending 時可先留空)
+  tw          text,                       -- 臺灣用語(status=pending 時可先留空)
   cn          text not null,              -- 中國用語(隨手捕捉的主體)
   category    text not null default '未分類',
   status      text not null default 'pending'

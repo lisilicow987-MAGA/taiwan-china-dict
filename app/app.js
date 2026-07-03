@@ -11,12 +11,12 @@ const DEMO = cfg.DEMO === true;
 
 // ── 本機示範用的假後端(config.js 設 DEMO:true 時啟用,不連任何服務)──
 const DEMO_SEED = [
-  { tw: "影片", cn: "视频", category: "網路流行語", status: "confirmed", note: "★台灣年輕人已大量改口說『視頻』而不自覺" },
-  { tw: "馬上 / 立刻", cn: "立马", category: "網路流行語", status: "confirmed", note: "★『立馬』近年大量入侵台灣口語" },
-  { tw: "早安 / 早", cn: "早上好", category: "問候", status: "confirmed", note: "★台灣習慣『早安』『早』" },
+  { tw: "影片", cn: "视频", category: "網路流行語", status: "confirmed", note: "★臺灣年輕人已大量改口說『視頻』而不自覺" },
+  { tw: "馬上 / 立刻", cn: "立马", category: "網路流行語", status: "confirmed", note: "★『立馬』近年大量入侵臺灣口語" },
+  { tw: "早安 / 早", cn: "早上好", category: "問候", status: "confirmed", note: "★臺灣習慣『早安』『早』" },
   { tw: "送出 / 提出 / 遞交", cn: "提交", category: "常用詞", status: "confirmed", note: "submit;查證:仲裁法用『提付』、公司法用『提案』,全文皆無『提交』" },
-  { tw: "品質", cn: "质量", category: "常用詞", status: "confirmed", note: "⚠陷阱:中國『质量』=品質;台灣『質量』=物理 mass" },
-  { tw: "馬鈴薯", cn: "土豆", category: "飲食", status: "confirmed", note: "⚠陷阱:台灣『土豆』=花生" },
+  { tw: "品質", cn: "质量", category: "常用詞", status: "confirmed", note: "⚠陷阱:中國『质量』=品質;臺灣『質量』=物理 mass" },
+  { tw: "馬鈴薯", cn: "土豆", category: "飲食", status: "confirmed", note: "⚠陷阱:臺灣『土豆』=花生" },
   { tw: "種草 → 推坑 / 燒到", cn: "种草", category: "網路流行語", status: "confirmed", note: "小紅書核心詞" },
   { tw: "增能 / 加值", cn: "赋能", category: "職場黑話", status: "confirmed", note: "中國科技業黑話" },
   { tw: "計程車", cn: "出租车", category: "交通", status: "confirmed", note: "" },
@@ -237,7 +237,7 @@ $("#addForm").addEventListener("submit", (e) => {
   f.cn.focus();
 });
 
-// ── AI 建議(呼叫 lookup Edge Function → 填入台灣對應,存成待查證)──
+// ── AI 建議(呼叫 lookup Edge Function → 填入臺灣對應,存成待查證)──
 $("#aiBtn").onclick = async () => {
   if (DEMO) return toast("示範模式不支援 AI 查詢(需連上真後端)");
   const f = $("#addForm");
@@ -307,7 +307,7 @@ function render() {
     .map((t) => {
       const tw = t.tw
         ? `<span class="tw">${esc(t.tw)}</span>`
-        : `<span class="tw empty">（台灣對應待補）</span>`;
+        : `<span class="tw empty">（臺灣對應待補）</span>`;
       return `<li class="card" data-id="${t.id}">
         <div class="pair">${tw}<span class="arrow">↔</span><span class="cn">${esc(t.cn)}</span></div>
         <div class="meta">
@@ -344,7 +344,7 @@ function openEdit(t) {
     <div class="modal-backdrop">
       <div class="modal">
         <h2>編輯詞條</h2>
-        <label>台灣用語<input id="m_tw" value="${esc(t.tw)}" placeholder="台灣對應"></label>
+        <label>臺灣用語<input id="m_tw" value="${esc(t.tw)}" placeholder="臺灣對應"></label>
         <label>中國用語 *<input id="m_cn" value="${esc(t.cn)}"></label>
         <div class="row">
           <label>分類<input id="m_cat" list="catList" value="${esc(t.category || "未分類")}"></label>

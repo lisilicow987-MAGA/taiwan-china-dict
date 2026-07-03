@@ -1,5 +1,5 @@
 // Supabase Edge Function:lookup
-// 用 Google Gemini 免費 API,給一個中國/台灣用語,回傳對應說法的「建議草稿」。
+// 用 Google Gemini 免費 API,給一個中國/臺灣用語,回傳對應說法的「建議草稿」。
 // 金鑰放 Edge Function 密鑰 GEMINI_API_KEY(伺服器端保管,不進前端、不進 git)。
 // 前端以 sb.functions.invoke("lookup", { body: { term, direction } }) 呼叫。
 
@@ -73,22 +73,22 @@ Deno.serve(async (req) => {
 
 function buildPrompt(term: string, cn2tw: boolean): string {
   if (cn2tw) {
-    return `你是台灣繁體中文的用語專家。使用者給你一個「中國大陸慣用語」,請判斷台灣人日常習慣的對應說法。
+    return `你是臺灣繁體中文的用語專家。使用者給你一個「中國大陸慣用語」,請判斷臺灣人日常習慣的對應說法。
 規則:
-1. 只用台灣繁體中文,嚴禁簡體字與中國用語。
-2. 若這個詞台灣本來就通用,answer 填台灣的說法並在 note 說明「兩岸通用」。
+1. 只用臺灣繁體中文,嚴禁簡體字與中國用語。
+2. 若這個詞臺灣本來就通用,answer 填臺灣的說法並在 note 說明「兩岸通用」。
 3. 若是同字不同義的陷阱詞(例如 土豆、質量、窩心、視頻),務必在 note 點出差異。
 4. 不確定時 confidence 填 low,note 誠實說明不確定,不要編造。
-5. answer 只放最主要的台灣對應說法(可用 / 分隔 2~3 個),不要整句解釋。
+5. answer 只放最主要的臺灣對應說法(可用 / 分隔 2~3 個),不要整句解釋。
 中國用語:「${term}」`;
   }
-  return `你是台灣與中國用語對照專家。使用者給你一個「台灣慣用語」,請判斷中國大陸對應的常用說法。
+  return `你是臺灣與中國用語對照專家。使用者給你一個「臺灣慣用語」,請判斷中國大陸對應的常用說法。
 規則:
 1. answer 放中國大陸的說法。
 2. 若兩岸通用,note 說明。
 3. 不確定時 confidence 填 low 並誠實說明,不要編造。
 4. answer 只放主要說法(可用 / 分隔),不要整句解釋。
-台灣用語:「${term}」`;
+臺灣用語:「${term}」`;
 }
 
 function json(obj: unknown, status = 200): Response {

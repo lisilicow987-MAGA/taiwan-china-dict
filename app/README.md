@@ -1,7 +1,7 @@
-# 台灣用語辭典 — PWA(手機 App)
+# 臺灣用語辭典 — PWA(手機 App)
 
 捕捉優先的對照辭典:在手機上隨手記下聽到的中國用語(預設「待查證」),
-之後在桌機補上台灣對應、查證、升為「已確認」。資料存在 Supabase,
+之後在桌機補上臺灣對應、查證、升為「已確認」。資料存在 Supabase,
 可一鍵匯回 `dict/terms.json` 進 git 永久保存。
 
 ## 架構
@@ -48,7 +48,7 @@ python -m http.server 5173
 ## 日常流程
 
 - **隨手記**:手機 App 打開 → 填中國用語 → 存(待查證)。
-- **查證**:把待查證清單丟給 Claude,補台灣對應、例句、升為已確認。
+- **查證**:把待查證清單丟給 Claude,補臺灣對應、例句、升為已確認。
 - **回存 git**:`python scripts/export_terms.py` → `python dict/build.py`
   → 已確認的詞同步回 `terms.json` 並更新 CSV/Markdown。
 
