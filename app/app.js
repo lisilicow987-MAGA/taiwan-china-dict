@@ -141,18 +141,36 @@ function renderAuth() {
   }
 }
 
+let authMode = "signin"; // signin | signup
+$("#toggleMode").onclick = () => {
+  authMode = authMode === "signin" ? "signup" : "signin";
+  $("#loginTitle").textContent = authMode === "signin" ? "登入" : "建立帳號";
+  $("#loginBtn").textContent = authMode === "signin" ? "登入" : "建立帳號";
+  $("#toggleMode").textContent = authMode === "signin" ? "第一次使用?建立帳號" : "已有帳號?改為登入";
+  $("#loginMsg").textContent = "";
+};
+
 $("#loginBtn").onclick = async () => {
   const email = $("#email").value.trim();
-  if (!email) return toast("請先輸入 Email");
+  const password = $("#password").value;
+  if (!email || !password) return toast("請輸入 Email 與密碼");
+  if (password.length < 6) return toast("密碼至少 6 碼");
   $("#loginBtn").disabled = true;
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: location.origin + location.pathname },
-  });
+  let error;
+  if (authMode === "signup") {
+    const res = await sb.auth.signUp({ email, password });
+    error = res.error;
+    if (!error && !res.data.session) {
+      $("#loginMsg").textContent = "帳號已建立,但專案仍要求 Email 確認。請到 Supabase 關閉 Confirm email 後,改用「登入」。";
+      $("#loginBtn").disabled = false;
+      return;
+    }
+  } else {
+    const res = await sb.auth.signInWithPassword({ email, password });
+    error = res.error;
+  }
   $("#loginBtn").disabled = false;
-  $("#loginMsg").textContent = error
-    ? "寄送失敗:" + error.message
-    : "已寄出!請到信箱點登入連結(可能在垃圾信)。";
+  $("#loginMsg").textContent = error ? "失敗:" + error.message : "";
 };
 
 // ── 資料存取 ──────────────────────────────────────────────

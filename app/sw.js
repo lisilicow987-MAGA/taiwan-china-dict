@@ -1,6 +1,6 @@
 // Service Worker:快取 App 外殼,讓離線時也能開啟介面。
 // 資料(Supabase API)一律走網路,不快取,避免讀到舊資料。
-const CACHE = "tw-dict-v1";
+const CACHE = "tw-dict-v2";
 const SHELL = [
   "./",
   "./index.html",

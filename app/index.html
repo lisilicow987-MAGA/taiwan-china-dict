@@ -23,12 +23,14 @@
        填入 Supabase 的 Project URL 與 anon key,再重新整理。</p>
   </section>
 
-  <!-- 登入(Email 免密碼連結) -->
+  <!-- 登入(Email + 密碼) -->
   <section id="login" hidden>
-    <h2>登入</h2>
-    <p class="hint">輸入 Email,我們寄一條登入連結給你(免密碼)。點連結即登入。</p>
+    <h2 id="loginTitle">登入</h2>
+    <p class="hint">輸入 Email 與密碼登入。第一次使用請先「建立帳號」。</p>
     <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
-    <button id="loginBtn" class="primary" style="margin-top:8px">寄送登入連結</button>
+    <input id="password" type="password" autocomplete="current-password" placeholder="密碼(至少 6 碼)" style="margin-top:8px" />
+    <button id="loginBtn" class="primary" style="margin-top:8px">登入</button>
+    <button id="toggleMode" class="ghost" style="margin-top:8px">第一次使用?建立帳號</button>
     <p id="loginMsg" class="hint" style="margin-top:8px"></p>
   </section>
 
