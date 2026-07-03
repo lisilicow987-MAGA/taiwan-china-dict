@@ -16,6 +16,16 @@ const MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
+  // 擋掉只用公開 anon 金鑰的呼叫,避免有人白嫖 Gemini 額度。
+  // 登入者的 JWT role 為 authenticated;純 anon 金鑰 role 為 anon → 拒絕。
+  try {
+    const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const role = JSON.parse(atob(jwt.split(".")[1])).role;
+    if (role === "anon") return json({ error: "需登入後才能使用 AI 查詢" }, 403);
+  } catch {
+    return json({ error: "未授權" }, 401);
+  }
+
   try {
     const { term, direction = "cn2tw" } = await req.json();
     if (!term || typeof term !== "string") return json({ error: "缺少 term" }, 400);
