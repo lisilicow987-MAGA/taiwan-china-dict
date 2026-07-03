@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>台灣用語辭典</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header>
+    <h1>台灣用語辭典</h1>
+    <div id="userbar"></div>
+  </header>
+
+  <!-- 尚未設定 config.js 時顯示 -->
+  <section id="setup" hidden>
+    <h2>還沒設定 Supabase</h2>
+    <p class="hint">請複製 <code>config.example.js</code> 為 <code>config.js</code>,
+       填入 Supabase 的 Project URL 與 anon key,再重新整理。</p>
+  </section>
+
+  <!-- 登入(Email 免密碼連結) -->
+  <section id="login" hidden>
+    <h2>登入</h2>
+    <p class="hint">輸入 Email,我們寄一條登入連結給你(免密碼)。點連結即登入。</p>
+    <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+    <button id="loginBtn" class="primary" style="margin-top:8px">寄送登入連結</button>
+    <p id="loginMsg" class="hint" style="margin-top:8px"></p>
+  </section>
+
+  <!-- 主畫面 -->
+  <main id="app" hidden>
+    <form id="addForm" autocomplete="off">
+      <input name="cn" placeholder="中國用語 *(必填,隨手記)" required />
+      <input name="tw" placeholder="台灣對應(可留空,之後查證)" />
+      <div class="row">
+        <input name="category" list="catList" placeholder="分類" />
+        <input name="source" placeholder="在哪聽到的" />
+      </div>
+      <input name="note" placeholder="備註(可留空)" />
+      <button type="submit" class="primary">＋ 新增（預設「待查證」）</button>
+    </form>
+    <datalist id="catList"></datalist>
+
+    <div id="controls">
+      <input id="search" type="search" placeholder="搜尋 台灣 / 中國 / 備註…" />
+      <div id="chips"></div>
+    </div>
+
+    <div id="count"></div>
+    <ul id="list"></ul>
+  </main>
+
+  <div id="modalRoot"></div>
+  <div id="toast"></div>
+
+  <script src="./config.js" onerror="window.__noConfig=true"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
