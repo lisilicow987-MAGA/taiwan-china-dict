@@ -237,6 +237,29 @@ $("#addForm").addEventListener("submit", (e) => {
   f.cn.focus();
 });
 
+// ── AI 建議(呼叫 lookup Edge Function → 填入台灣對應,存成待查證)──
+$("#aiBtn").onclick = async () => {
+  if (DEMO) return toast("示範模式不支援 AI 查詢(需連上真後端)");
+  const f = $("#addForm");
+  const cn = f.cn.value.trim();
+  if (!cn) return toast("請先填「中國用語」");
+  const btn = $("#aiBtn");
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "AI 查詢中…";
+  const { data, error } = await sb.functions.invoke("lookup", { body: { term: cn, direction: "cn2tw" } });
+  btn.disabled = false;
+  btn.textContent = label;
+  if (error || (data && data.error)) {
+    return toast("查詢失敗:" + ((data && data.error) || error.message));
+  }
+  if (data.tw) f.tw.value = data.tw;
+  const conf = data.confidence ? `(AI 信心:${data.confidence})` : "";
+  f.note.value = (data.note ? data.note : "") + conf;
+  if (!f.source.value) f.source.value = data.source || "AI 建議";
+  toast("已填入 AI 建議,按「新增」會存成待查證");
+};
+
 // ── 搜尋 / 篩選 ──────────────────────────────────────────
 $("#search").addEventListener("input", (e) => {
   filter.q = e.target.value.trim().toLowerCase();
