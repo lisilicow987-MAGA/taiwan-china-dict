@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
   // 登入者的 JWT role 為 authenticated;純 anon 金鑰 role 為 anon → 拒絕。
   try {
     const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-    const role = JSON.parse(atob(jwt.split(".")[1])).role;
+    const role = JSON.parse(decodeJwtPayload(jwt)).role;
     if (role === "anon") return json({ error: "需登入後才能使用 AI 查詢" }, 403);
   } catch {
     return json({ error: "未授權" }, 401);
@@ -100,6 +100,15 @@ function buildPrompt(term: string, cn2tw: boolean): string {
 3. 不確定時 confidence 填 low 並誠實說明,不要編造。
 4. answer 只放主要說法(可用 / 分隔),不要整句解釋。
 臺灣用語:「${term}」`;
+}
+
+// JWT payload 是 base64url(-_ 取代 +/、且省略 padding),atob 只吃標準 base64,
+// 需先換回 +/ 並補足 = padding,否則含 -_ 的合法 token 會解碼失敗被誤判未授權。
+function decodeJwtPayload(jwt: string): string {
+  const seg = jwt.split(".")[1] ?? "";
+  const b64 = seg.replace(/-/g, "+").replace(/_/g, "/")
+    .padEnd(Math.ceil(seg.length / 4) * 4, "=");
+  return atob(b64);
 }
 
 function json(obj: unknown, status = 200): Response {
