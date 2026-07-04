@@ -115,7 +115,15 @@ async function init() {
   sb.auth.onAuthStateChange((_e, s) => {
     session = s;
     renderAuth();
-    if (s) loadTerms();
+    if (s) {
+      // 密碼登入是在此事件才拿到 session,realtime 必須在這裡訂閱,
+      // 否則常見的「開頁→登入」流程下多裝置即時同步不會生效。
+      loadTerms();
+      subscribeRealtime();
+    } else {
+      terms = [];
+      render();
+    }
   });
   renderAuth();
   if (session) {
@@ -213,7 +221,10 @@ async function deleteTerm(id) {
   await loadTerms();
 }
 
+let realtimeSubscribed = false;
 function subscribeRealtime() {
+  if (realtimeSubscribed) return;   // 避免登入事件與初始化重複訂閱,造成多條 channel
+  realtimeSubscribed = true;
   sb.channel("terms-changes")
     .on("postgres_changes", { event: "*", schema: "public", table: "terms" }, () => loadTerms())
     .subscribe();
