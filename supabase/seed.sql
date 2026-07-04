@@ -1,5 +1,10 @@
 -- 由 dict/terms.json 自動產生(python scripts/gen_seed.py)
--- 貼進 Supabase SQL Editor 執行一次即可匯入現有詞庫
+-- 可重複執行:以 (tw, cn, category) 為唯一鍵 upsert,整檔貼上 Run 即可
+-- 新詞會 insert、既有詞更新 status/note,不會重複,也不動你捕捉的 pending 詞
+
+-- 確保唯一鍵存在(schema.sql 已建則略過)
+create unique index if not exists terms_seed_key_idx
+  on public.terms (tw, cn, category);
 
 insert into public.terms (tw, cn, category, status, note) values
   ('軟體', '软件', '資訊科技', 'confirmed', NULL),
@@ -182,6 +187,24 @@ insert into public.terms (tw, cn, category, status, note) values
   ('帥哥 / 美女', '小哥哥 / 小姐姐', '網路流行語', 'confirmed', '電商/直播稱呼'),
   ('穩的 / 沒問題', '妥妥的', '網路流行語', 'confirmed', NULL),
   ('硬拚 / 卯起來', '死磕', '網路流行語', 'confirmed', NULL),
+  ('時髦不時髦 / 潮不潮', 'city不city', '網路流行語', 'confirmed', '2024 中國十大流行語。美國博主『保保熊』來華旅遊常問『妹妹,city不city啊?』爆紅,意為時髦/洋氣/現代化與否'),
+  ('上班的疲態 / 班相', '班味', '網路流行語', 'confirmed', '2024 十大流行語。指上班上到眼神疲憊、面容憔悴的樣子,源自網文『一旦上過班,你的氣質就會改變了』'),
+  ('被牢牢吸住 / 挪不開眼', '硬控', '網路流行語', 'confirmed', '2024 十大流行語。原為遊戲『硬性控制』,轉為正面:『硬控我 X 秒』=某事物太吸引人、讓人短時間完全淪陷'),
+  ('從容 / 淡定 / 不緊繃', '松弛感', '網路流行語', 'confirmed', '2024 十大流行語。面對壓力仍從容不焦慮的心理狀態或氛圍'),
+  ('固定夥伴 / 咖', '搭子', '網路流行語', 'confirmed', '為特定目的結伴的淺社交關係,如『飯搭子』(一起吃飯)、『健身搭子』'),
+  ('情緒支持 / 情緒滿足', '情绪价值', '網路流行語', 'confirmed', '能帶給人正向情緒的能力,如『情緒價值拉滿』'),
+  ('荒謬 / 無厘頭 / 搞怪', '抽象', '網路流行語', 'confirmed', '網路義非本義,指荒誕搞笑、無厘頭的言行(『抽象文化』)'),
+  ('真的假的', '尊嘟假嘟', '網路流行語', 'confirmed', '『真的假的』諧音賣萌梗,多配可愛貓狗照使用'),
+  ('傻眼 / 無言(反諷式謝謝)', '栓Q', '網路流行語', 'confirmed', '英文 thank you 諧音(廣西陽朔大叔影片爆紅),實際多表無奈、吐槽而非道謝'),
+  ('完蛋了 / 玩完了', '芭比Q了', '網路流行語', 'confirmed', 'barbecue(燒烤)諧音,意為『被烤了/完蛋了』'),
+  ('偶像爆負面 / 人設崩壞', '塌房', '網路流行語', 'confirmed', '飯圈用語:偶像出現負面新聞或戀愛曝光,粉絲的『快樂老家』塌了'),
+  ('頂級流量明星', '顶流', '網路流行語', 'confirmed', '飯圈用語:人氣最高的當紅偶像(顶级流量)'),
+  ('嗑 CP / 支持配對', '磕CP', '網路流行語', 'confirmed', '飯圈用語:沉迷某對配對的互動,『kdl(磕到了)』『kswl(磕死我了)』'),
+  ('頂尖 / 最高標準', '天花板', '網路流行語', 'confirmed', '某領域最強、無人能超越,如『顏值天花板』'),
+  ('爆紅到圈外 / 廣為人知', '出圈', '網路流行語', 'confirmed', '從特定小圈子紅到大眾主流,相關詞『破圈』'),
+  ('掌控 / 穩穩拿下', '拿捏', '網路流行語', 'confirmed', '『拿捏得死死的』=完全掌控、輕鬆搞定'),
+  ('遙遙領先(多為反諷)', '遥遥领先', '網路流行語', 'confirmed', '源自華為發表會,網路多用於反諷式吹捧'),
+  ('很入迷 / 上癮 / 衝動上腦', '上头', '網路流行語', 'confirmed', '讓人著迷欲罷不能;反義『下头』=掃興、倒胃口'),
   ('增能 / 加值 / 賦予能力', '赋能', '職場黑話', 'confirmed', '中國科技業黑話,經外商/新創外溢臺灣'),
   ('取得共識 / 同步', '对齐 / 拉齐', '職場黑話', 'confirmed', 'align'),
   ('檢討 / 回顧', '复盘', '職場黑話', 'confirmed', 'review/retrospective'),
@@ -190,8 +213,21 @@ insert into public.terms (tw, cn, category, status, note) values
   ('完整循環 / 形成閉環', '闭环', '職場黑話', 'confirmed', 'closed loop'),
   ('細緻度 / 詳細程度', '颗粒度', '職場黑話', 'confirmed', 'granularity'),
   ('整合 / 打通', '拉通', '職場黑話', 'confirmed', NULL),
+  ('領域 / 市場區塊', '赛道', '職場黑話', 'confirmed', '『這條賽道』=某產業或市場領域,如『押注 AI 賽道』'),
+  ('對照 / 看齊 / 對比', '对标', '職場黑話', 'confirmed', 'benchmark;對標競品、對標一線大廠'),
+  ('累積 / 積累 / 內化', '沉淀', '職場黑話', 'confirmed', '『經驗沉澱』『數據沉澱』=累積、萃取成資產'),
+  ('根本原理 / 基本道理', '底层逻辑', '職場黑話', 'confirmed', 'underlying logic;事情運作的根本原理'),
+  ('環節 / 流程串接', '链路', '職場黑話', 'confirmed', '『打通全鏈路』=串起整條流程/環節'),
+  ('策略 / 做法 / 玩法', '打法', '職場黑話', 'confirmed', '『這套打法』=經營或執行策略'),
+  ('生態系 / 生態圈', '生态', '職場黑話', 'confirmed', 'ecosystem;『做生態』=經營產品或夥伴生態系'),
+  ('重複使用 / 沿用', '复用', '職場黑話', 'confirmed', 'reuse;『能力複用』=既有資源沿用到別處'),
+  ('導流 / 帶客流', '引流', '職場黑話', 'confirmed', '把流量或客源導入某處'),
+  ('轉換 / 轉換率', '转化', '職場黑話', 'confirmed', 'conversion;『提高轉化』=提高成交或註冊轉換率'),
   ('早安 / 早', '早上好', '問候', 'confirmed', '★臺灣習慣『早安』『早』,『早上好』為中國說法。同理晚安 vs 晚上好'),
   ('社區', '小区', '居住', 'confirmed', 'residential community'),
   ('屋主 / 住戶', '业主', '居住', 'confirmed', NULL),
   ('管委會 / 社區管理', '物业', '居住', 'confirmed', 'property management;臺灣『物業』少用'),
-  ('建案', '楼盘', '居住', 'confirmed', 'housing development');
+  ('建案', '楼盘', '居住', 'confirmed', 'housing development')
+on conflict (tw, cn, category) do update set
+  status = excluded.status,
+  note   = excluded.note;

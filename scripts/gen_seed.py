@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 把 dict/terms.json 轉成 supabase/seed.sql。
-產出的 SQL 貼進 Supabase SQL Editor 執行一次,即可把現有詞庫匯入。
+產出的 SQL 可重複貼進 Supabase SQL Editor 執行(idempotent upsert):
+以 (tw, cn, category) 為唯一鍵,新詞會 insert、既有詞會更新 status/note,
+不會產生重複列,也不會動到你自己捕捉的 pending 詞。
 既有策劃資料一律標為 status='confirmed'。
 用法:python scripts/gen_seed.py
 """
@@ -34,10 +36,16 @@ def main():
         )
     sql = (
         "-- 由 dict/terms.json 自動產生(python scripts/gen_seed.py)\n"
-        "-- 貼進 Supabase SQL Editor 執行一次即可匯入現有詞庫\n\n"
+        "-- 可重複執行:以 (tw, cn, category) 為唯一鍵 upsert,整檔貼上 Run 即可\n"
+        "-- 新詞會 insert、既有詞更新 status/note,不會重複,也不動你捕捉的 pending 詞\n\n"
+        "-- 確保唯一鍵存在(schema.sql 已建則略過)\n"
+        "create unique index if not exists terms_seed_key_idx\n"
+        "  on public.terms (tw, cn, category);\n\n"
         "insert into public.terms (tw, cn, category, status, note) values\n"
         + ",\n".join(rows)
-        + ";\n"
+        + "\non conflict (tw, cn, category) do update set\n"
+        "  status = excluded.status,\n"
+        "  note   = excluded.note;\n"
     )
     OUT.write_text(sql, encoding="utf-8")
     print(f"已產出 {OUT.relative_to(ROOT)}({len(rows)} 筆)")

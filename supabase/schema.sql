@@ -23,6 +23,9 @@ create index if not exists terms_tw_idx       on public.terms (tw);
 create index if not exists terms_status_idx   on public.terms (status);
 create index if not exists terms_category_idx on public.terms (category);
 
+-- 策劃資料的唯一鍵:供 seed.sql 以 upsert 重複匯入用(tw 可為 NULL,pending 捕捉不受影響)
+create unique index if not exists terms_seed_key_idx on public.terms (tw, cn, category);
+
 -- ── updated_at 自動更新 ────────────────────────────────────
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
