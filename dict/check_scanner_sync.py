@@ -1,27 +1,31 @@
 # -*- coding: utf-8 -*-
-"""比對「字典 terms.json」與「守衛 mainland_scan.py」的收詞差異。
+"""檢查守衛用的詞表是否跟得上 terms.json。
 
 用法：python dict/check_scanner_sync.py
 
-為什麼需要這支：同一件事被記在兩個地方，會動的那份繼續走，另一份安靜地開始
-說謊，而且不會示警。這兩份的維護入口完全不同——維護字典 app 時不會想到守衛，
-被守衛擋下來時就直接補在守衛裡——沒有任何日常動作會同時碰到兩份。
+原本這支是比對「字典」與「守衛原始碼裡的人工詞表」兩份清單的差集。
+2026-08-18 收斂成單向生成之後，那個差集在設計上恆為 0，真正會出事的是
+另一件事：**有人改了 terms.json 卻忘了跑 build_scanner.py**，於是守衛
+繼續用舊詞表，而畫面上一切正常。
 
-**比對軸是「臺灣用語」而不是「中國用語」**，這點是 2026-08-18 才釐清的：
-terms.json 的 `cn` 欄記的是簡體（软件、视频），守衛的 key 記的是繁體書寫的
-中國用語（軟件、視頻）。直接對撞只有簡繁同形的詞對得上，會得出「重疊只有 8 個」
-這種假象；以臺灣用語為軸，真正的概念重疊是 21 個。
+所以現在檢查兩件事：
+  1) 生成物與 terms.json 是否同步（不同步 → 新補的詞根本沒在擋）
+  2) 字典裡有多少條目已納入執法、多少條還沒決定
 
-本工具只報告、不改檔、不擋流程（退出碼恆為 0）。
+只報告、不改檔、不擋流程（退出碼恆為 0）。
 """
 import json
-import re
 import sys
 from pathlib import Path
 
+try:
+    import opencc
+except ImportError:
+    opencc = None
+
 ROOT = Path(__file__).resolve().parent
 TERMS = ROOT / "terms.json"
-SCANNER = Path.home() / "OneDrive" / ".claude-sync" / "scripts" / "mainland_scan.py"
+BUILT = Path.home() / "OneDrive" / ".claude-sync" / "scripts" / "mainland_terms.json"
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -30,52 +34,62 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 
-def head(s):
-    """取用語的主體：『陷阱/容易出錯的地方』→『陷阱』，『資訊（多數用資訊）』→『資訊』。"""
-    return re.split(r"[（(/]", s)[0].strip()
-
-
-def load_scanner():
-    """從守衛原始碼抽出「中國用語 -> 臺灣用語」的對照。"""
-    src = SCANNER.read_text(encoding="utf-8")
-    return dict(re.findall(r'"([一-鿿/]+)"\s*:\s*"([^"]+)"', src))
+def expected(entries):
+    """算出「照現在的 terms.json 該產出什麼」，用來跟實際產出的比。"""
+    conv = opencc.OpenCC("s2t") if opencc else None
+    hard, ctx = {}, {}
+    for e in entries:
+        lvl = e.get("scan")
+        if lvl not in ("hard", "context"):
+            continue
+        key = e.get("cn_tw")
+        if not key:
+            if conv is None:
+                continue
+            key = conv.convert(e["cn"].split("/")[0].strip())
+        (hard if lvl == "hard" else ctx)[key] = e.get("scan_tw") or e["tw"]
+    return hard, ctx
 
 
 def main():
-    if not TERMS.exists() or not SCANNER.exists():
-        print("找不到 terms.json 或 mainland_scan.py，略過比對")
+    if not TERMS.exists():
+        print("找不到 terms.json")
         return
-    terms = json.loads(TERMS.read_text(encoding="utf-8"))["entries"]
-    scanner = load_scanner()
-
-    dict_tw = {head(e["tw"]) for e in terms}
-    scan_tw = {head(v) for v in scanner.values()}
-    both = dict_tw & scan_tw
-    only_scan = sorted(scan_tw - dict_tw)
-    only_dict = sorted(dict_tw - scan_tw)
-
-    print(f"字典收錄概念：{len(dict_tw)}　守衛收錄概念：{len(scan_tw)}")
-    print(f"兩邊都有：{len(both)}")
-    print(f"只在守衛、字典沒收：{len(only_scan)}")
-    print(f"只在字典、守衛擋不到：{len(only_dict)}")
+    entries = json.loads(TERMS.read_text(encoding="utf-8"))["entries"]
+    n_hard = sum(1 for e in entries if e.get("scan") == "hard")
+    n_ctx = sum(1 for e in entries if e.get("scan") == "context")
+    print(f"字典條目：{len(entries)}")
+    print(f"  執法（hard，直接擋）：{n_hard}")
+    print(f"  執法（context,只警告）：{n_ctx}")
+    print(f"  未納入執法：{len(entries) - n_hard - n_ctx}")
     print()
-    if only_scan:
-        print("守衛擋得到但字典沒收（補進 terms.json 就一致了）：")
-        print("  " + "、".join(only_scan))
-        print()
-    if only_dict:
-        print(f"字典有但守衛擋不到（前 30／共 {len(only_dict)}）：")
-        print("  " + "、".join(only_dict[:30]))
-        print()
-    if not only_scan and not only_dict:
-        print("✅ 差集為 0，兩份完全一致")
+
+    if not BUILT.exists():
+        print("⚠️ 找不到生成的詞表,守衛目前形同未檢查。")
+        print("   修法：python dict/build_scanner.py")
+        return
+    built = json.loads(BUILT.read_text(encoding="utf-8"))
+    if opencc is None:
+        print("（未安裝 opencc,略過同步比對）")
+        return
+    eh, ec = expected(entries)
+    drift = []
+    for name, want, got in (("hard", eh, built.get("hard", {})),
+                            ("context", ec, built.get("context", {}))):
+        for k in sorted(set(want) | set(got)):
+            if k not in got:
+                drift.append(f"{name}:{k} 字典有、詞表沒有")
+            elif k not in want:
+                drift.append(f"{name}:{k} 詞表有、字典已移除")
+            elif want[k] != got[k]:
+                drift.append(f"{name}:{k} 建議用語不同")
+    if not drift:
+        print(f"✅ 詞表與字典同步（產出於 {built.get('_at', '?')}）")
     else:
-        print("⚠️ 兩份尚未收斂。收斂方向：terms.json 為唯一正本，守衛的字典改為生成物。")
-        print("   但這不是單純聯集，有兩件事要先處理：")
-        print("   1) 書寫系統不同：字典的 cn 欄記簡體，守衛要擋的是同一個詞的繁體寫法。")
-        print("      簡體那一側已有簡體字表擋得住，缺的是繁體形，需要一個轉換步驟。")
-        print("   2) 同字不同義：像『土豆』『窩心』在臺灣有正當且相反的意思，只能降級為")
-        print("      警告，不能硬擋。字典 note 欄的 ⚠ 標記正是這類詞，可當分級的種子。")
+        print(f"⚠️ 詞表落後字典 {len(drift)} 處 —— 新補的詞現在沒有在擋：")
+        for x in drift[:20]:
+            print("   " + x)
+        print("   修法：python dict/build_scanner.py")
 
 
 main()
