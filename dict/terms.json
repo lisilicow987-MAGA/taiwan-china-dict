@@ -55,7 +55,7 @@
     { "tw": "智慧型手機", "cn": "智能手机", "category": "資訊科技", "note": "smartphone;『智慧』→『智能』,如智慧家庭→智能家居" },
     { "tw": "簡訊", "cn": "短信", "category": "資訊科技", "note": "SMS" },
     { "tw": "視訊", "cn": "视频", "category": "資訊科技", "note": "中國『视频』泛指影片;臺灣『影片』中國亦稱『视频』" },
-    { "tw": "影片", "cn": "视频", "category": "資訊科技", "note": "video clip" },
+    { "tw": "影片", "cn": "视频", "category": "資訊科技", "note": "★最典型外溢詞:臺灣年輕人已大量改口說『視頻』而不自覺。YouTube/短影音一律『影片』；video clip" },
     { "tw": "部落格", "cn": "博客", "category": "資訊科技", "note": "blog" },
     { "tw": "部落客", "cn": "博主", "category": "資訊科技", "note": "blogger;『博主』泛指自媒體經營者" },
     { "tw": "駭客", "cn": "黑客", "category": "資訊科技", "note": "hacker" },
@@ -152,8 +152,6 @@
     { "tw": "超商 / 便利商店", "cn": "便利店", "category": "消費", "note": "convenience store" },
     { "tw": "大賣場 / 量販店", "cn": "大卖场 / 超市", "category": "消費", "note": "hypermarket" },
     { "tw": "百貨公司", "cn": "百货 / 商场", "category": "消費", "note": "department store" },
-
-    { "tw": "影片", "cn": "视频", "category": "網路流行語", "note": "★最典型外溢詞:臺灣年輕人已大量改口說『視頻』而不自覺。YouTube/短影音一律『影片』" },
     { "tw": "馬上 / 立刻", "cn": "立马", "category": "網路流行語", "note": "★『立馬』近年大量入侵臺灣口語" },
     { "tw": "訊息 / 資訊", "cn": "信息", "category": "網路流行語", "note": "message/information;臺灣 message=訊息、information=資訊" },
     { "tw": "高畫質 / 高解析度", "cn": "高清", "category": "網路流行語", "note": "HD" },
@@ -211,7 +209,6 @@
     { "tw": "掌控 / 穩穩拿下", "cn": "拿捏", "category": "網路流行語", "note": "『拿捏得死死的』=完全掌控、輕鬆搞定" },
     { "tw": "遙遙領先(多為反諷)", "cn": "遥遥领先", "category": "網路流行語", "note": "源自華為發表會,網路多用於反諷式吹捧" },
     { "tw": "很入迷 / 上癮 / 衝動上腦", "cn": "上头", "category": "網路流行語", "note": "讓人著迷欲罷不能;反義『下头』=掃興、倒胃口" },
-
     { "tw": "增能 / 加值 / 賦予能力", "cn": "赋能", "category": "職場黑話", "note": "中國科技業黑話,經外商/新創外溢臺灣" },
     { "tw": "取得共識 / 同步", "cn": "对齐 / 拉齐", "category": "職場黑話", "note": "align" },
     { "tw": "檢討 / 回顧", "cn": "复盘", "category": "職場黑話", "note": "review/retrospective" },
@@ -230,7 +227,6 @@
     { "tw": "重複使用 / 沿用", "cn": "复用", "category": "職場黑話", "note": "reuse;『能力複用』=既有資源沿用到別處" },
     { "tw": "導流 / 帶客流", "cn": "引流", "category": "職場黑話", "note": "把流量或客源導入某處" },
     { "tw": "轉換 / 轉換率", "cn": "转化", "category": "職場黑話", "note": "conversion;『提高轉化』=提高成交或註冊轉換率" },
-
     { "tw": "早安 / 早", "cn": "早上好", "category": "問候", "note": "★臺灣習慣『早安』『早』,『早上好』為中國說法。同理晚安 vs 晚上好" },
     { "tw": "社區", "cn": "小区", "category": "居住", "note": "residential community" },
     { "tw": "屋主 / 住戶", "cn": "业主", "category": "居住", "note": "" },
