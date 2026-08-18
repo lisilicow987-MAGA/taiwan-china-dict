@@ -46,6 +46,7 @@ def main():
     data = json.loads(SRC.read_text(encoding="utf-8"))
     conv = opencc.OpenCC("s2t") if opencc else None
     hard, context, missing = {}, {}, []
+    exempt = []
 
     for e in data["entries"]:
         level = e.get("scan")
@@ -58,6 +59,11 @@ def main():
                 continue
             key = conv.convert(e["cn"].split("/")[0].strip())
         (hard if level == "hard" else context)[key] = e.get("scan_tw") or e["tw"]
+        # scan_not：這些片語裡雖然出現了該詞的字面，但句子本身是正確的臺灣中文,
+        # 純粹是相鄰兩個詞夾出來的子字串巧合。守衛比對前會把整段片語遮掉。
+        for phrase in e.get("scan_not") or []:
+            if phrase not in exempt:
+                exempt.append(phrase)
 
     if missing:
         print("缺少 cn_tw 且環境沒有 opencc,無法轉出繁體形：", "、".join(missing),
@@ -69,9 +75,10 @@ def main():
         "_generated": "由 China Shit/dict/build_scanner.py 從 terms.json 生成,請勿手動編輯",
         "_source": "dict/terms.json",
         "_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "hard": hard, "context": context,
+        "hard": hard, "context": context, "exempt": exempt,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"已產出 {OUT.name}:hard {len(hard)} 條、context {len(context)} 條")
+    print(f"已產出 {OUT.name}:hard {len(hard)} 條、context {len(context)} 條、"
+          f"豁免片語 {len(exempt)} 條")
 
 
 if __name__ == "__main__":

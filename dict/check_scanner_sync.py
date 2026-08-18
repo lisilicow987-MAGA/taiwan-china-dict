@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""檢查守衛用的詞表是否跟得上 terms.json。
+"""檢查守衛用的詞表是否跟得上 terms.json。（allow-terms:file —— 本檔會舉例，整份不掃）
 
 用法：python dict/check_scanner_sync.py
 
