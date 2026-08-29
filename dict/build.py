@@ -67,6 +67,28 @@ def build_md(data):
     return len(entries)
 
 
+def build_others():
+    """順帶重建其他所有從 terms.json 衍生的檔案。
+
+    為什麼要綁在一起:2026-08-29 發現 supabase/seed.sql 落後了 54 筆——
+    8/18 補詞時只重建了 CSV/Markdown 與守衛詞表,沒有人想到還有 seed。
+    衍生物只要有一個需要「另外記得跑」,它遲早會落後,而且沒有人會發現。
+    這裡失敗只提示、不中斷,CSV/Markdown 已經產好了不該一起賠掉。
+    """
+    import subprocess
+    for desc, script in (("Supabase seed", ROOT.parent / "scripts" / "gen_seed.py"),
+                         ("守衛詞表", ROOT / "build_scanner.py")):
+        if not script.exists():
+            continue
+        r = subprocess.run([sys.executable, str(script)], capture_output=True,
+                           encoding="utf-8", errors="replace")
+        out = (r.stdout or r.stderr or "").strip().splitlines()
+        if r.returncode == 0:
+            print("  " + (out[-1] if out else f"已產出{desc}"))
+        else:
+            print(f"  ⚠️ {desc}重建失敗:{out[-1] if out else r.returncode}", file=sys.stderr)
+
+
 def main():
     if not SRC.exists():
         print(f"找不到資料來源:{SRC}", file=sys.stderr)
@@ -76,6 +98,7 @@ def main():
     n_md = build_md(data)
     print(f"已產出 CSV:{CSV_OUT.name}({n_csv} 筆)")
     print(f"已產出 Markdown:{MD_OUT.name}({n_md} 筆)")
+    build_others()
 
 
 if __name__ == "__main__":
