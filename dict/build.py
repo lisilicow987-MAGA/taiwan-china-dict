@@ -23,7 +23,11 @@ def load():
 def build_csv(data):
     entries = data["entries"]
     with CSV_OUT.open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.writer(f)
+        # lineterminator 寫死:csv 預設用 CRLF,而 Python 在 Windows 又會再把
+        # 換行依平台轉換。兩者相乘的結果是同一份 terms.json 在 Windows 與 Linux
+        # 產出的檔案每一行都不同——CI 重建後會判定「整份不同步」,但那不是真的
+        # 不同步。搭配 .gitattributes 的 eol=lf,兩邊才會一致。
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow(["臺灣慣用語", "中國慣用語", "分類", "備註"])
         for e in entries:
             writer.writerow([e["tw"], e["cn"], e["category"], e.get("note", "")])
@@ -63,7 +67,7 @@ def build_md(data):
             lines.append(f"| {e['tw']} | {e['cn']} | {note} |")
         lines.append("")
 
-    MD_OUT.write_text("\n".join(lines), encoding="utf-8")
+    MD_OUT.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     return len(entries)
 
 

@@ -65,7 +65,8 @@ def main():
         "  status = excluded.status,\n"
         "  note   = excluded.note;\n"
     )
-    OUT.write_text(sql, encoding="utf-8")
+    # newline 寫死 LF:預設會依平台轉換,Windows 與 Linux 產出不同,CI 會誤判不同步
+    OUT.write_text(sql, encoding="utf-8", newline="\n")
     print(f"已產出 {OUT.relative_to(ROOT)}({len(rows)} 筆)")
 
 

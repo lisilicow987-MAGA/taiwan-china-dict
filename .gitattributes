@@ -1,0 +1,6 @@
+# 產生器一律輸出 LF；若讓 git 依平台自動轉換，Windows 產出 CRLF、Linux 產出 LF，
+# CI 重建後會判定「整份檔案都變了」——那不是真的不同步，是平台差異。
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
