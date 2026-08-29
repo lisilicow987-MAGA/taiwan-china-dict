@@ -283,7 +283,8 @@ insert into public.terms (tw, cn, category, status, note) values
   ('露出馬腳 / 破功', '露馅', '網路流行語', 'confirmed', '自守衛字典遷入(2026-08-18)'),
   ('無預警', '静默', '資訊科技', 'confirmed', '自守衛字典遷入(2026-08-18)'),
   ('首次繪製 / 第一個畫面', '首屏', '資訊科技', 'confirmed', '自守衛字典遷入(2026-08-18)'),
-  ('無預警', '默默', '常用詞', 'confirmed', '自守衛字典遷入(2026-08-18)')
+  ('無預警', '默默', '常用詞', 'confirmed', '自守衛字典遷入(2026-08-18)'),
+  ('防閒置 / 維持活躍', '保活', '資訊科技', 'confirmed', 'keep-alive;中國稱『保活』,臺灣說防閒置、維持連線,或直接用原文 keep-alive')
 on conflict (tw, cn, category) do update set
   status = excluded.status,
   note   = excluded.note;

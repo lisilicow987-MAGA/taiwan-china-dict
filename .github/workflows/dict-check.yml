@@ -1,0 +1,37 @@
+# 字典的衍生物一致性檢查。
+#
+# 起因:2026-08-29 發現 supabase/seed.sql 落後 terms.json 整整 54 筆——8/18 補詞時
+# 只重建了 CSV/Markdown 與守衛詞表,沒有人想到還有 seed。衍生物只要有一個需要
+# 「另外記得跑」,它遲早會落後,而且畫面上看不出來。
+#
+# 這裡重建一次再比對:對不上就讓 CI 紅燈,並附上修法。
+name: 字典衍生物一致性
+
+on:
+  push:
+    branches: [main]
+    paths: ['dict/**', 'scripts/gen_seed.py', 'supabase/seed.sql']
+  pull_request:
+    paths: ['dict/**', 'scripts/gen_seed.py', 'supabase/seed.sql']
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 安裝簡繁轉換
+        run: pip install --quiet opencc-python-reimplemented
+      - name: 重建全部衍生物
+        run: python dict/build.py
+      - name: 比對是否與 commit 的版本一致
+        run: |
+          if ! git diff --exit-code -- dict/dict.csv dict/dict.md supabase/seed.sql; then
+            echo "::error::衍生物與 dict/terms.json 不同步。"
+            echo "::error::修法:在本機跑 python dict/build.py,把產出一起 commit。"
+            exit 1
+          fi
+          echo "四份衍生物全部跟得上 terms.json。"

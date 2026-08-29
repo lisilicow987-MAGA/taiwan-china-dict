@@ -1,0 +1,30 @@
+# Supabase 免費專案連續 7 天沒有任何請求就會自動暫停,暫停後專案專屬子網域的
+# DNS 會被撤掉,看起來像是憑證失效(管理 API 回 401),很容易誤診。
+# 這個排程每週打兩次,把閒置計時歸零;順便當偵測器——專案真的掛了就會失敗,
+# GitHub 會寄信通知。
+#
+# ⚠️ 已知限制:GitHub 對「連續 60 天沒有 repo 活動」的排程會自動停用並寄信。
+#    不過真有 60 天沒碰這個 repo,代表你也沒在用這個 app,那時被暫停無傷。
+name: Supabase 防閒置
+
+on:
+  schedule:
+    - cron: '0 1 * * 1,4'      # 每週一、四 UTC 01:00(台北上午 9 點),最大間隔 4 天
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 打一次 REST,讓閒置計時歸零
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -m 25 \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/terms?select=id&limit=1")
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::Supabase 沒有正常回應(HTTP $code)。若為 000 或逾時,"
+            echo "::error::多半是專案已被暫停 → 到 Dashboard 按 Restore。"
+            exit 1
+          fi
+          echo "專案存活,閒置計時已歸零。"
