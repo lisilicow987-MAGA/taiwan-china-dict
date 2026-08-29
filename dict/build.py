@@ -81,7 +81,8 @@ def build_others():
     """
     import subprocess
     for desc, script in (("Supabase seed", ROOT.parent / "scripts" / "gen_seed.py"),
-                         ("守衛詞表", ROOT / "build_scanner.py")):
+                         ("守衛詞表", ROOT / "build_scanner.py"),
+                         ("SHARED_RULES 錨點", ROOT / "build_anchors.py")):
         if not script.exists():
             continue
         r = subprocess.run([sys.executable, str(script)], capture_output=True,
